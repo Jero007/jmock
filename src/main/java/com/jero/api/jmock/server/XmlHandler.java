@@ -53,6 +53,7 @@ public class XmlHandler implements JHandler {
                 return;
             }
             String path = xmlAdaptor.getRespPath(rcvXml);
+            logger.info("=====> 解析后的挡板文件地址：{}",path);
             if (path == null) {
                 this.error(403, "返回报文路径解析失败", (SocketChannel) channel);
                 return;
@@ -64,6 +65,7 @@ public class XmlHandler implements JHandler {
             }
             if (null == fileString && this.mode == 1) {
                 //往后端系统转发
+                logger.info("=====> 无挡板，将转发到后端系统 =====>");
                 fileString = client.send((String)rcvData);
             }
 
@@ -104,6 +106,7 @@ public class XmlHandler implements JHandler {
         if (!resp.exists()) {
             return null;
         }
+        logger.info("=====> 有挡板，将读取本地xml =====>");
         StringBuilder sb = new StringBuilder();
         FileInputStream fileInputStream = null;
         try {

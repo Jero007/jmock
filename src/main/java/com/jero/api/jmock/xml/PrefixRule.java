@@ -39,4 +39,13 @@ public class PrefixRule {
     public void setNext(PrefixRule next) {
         this.next = next;
     }
+
+    @Override
+    public String toString() {
+        return "PrefixRule{" +
+                "elementName='" + elementName + '\'' +
+                ", attrName='" + attrName + '\'' +
+                ", next=" + next +
+                '}';
+    }
 }

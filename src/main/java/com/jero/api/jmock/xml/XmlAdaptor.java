@@ -1,15 +1,17 @@
 package com.jero.api.jmock.xml;
 
-import com.sun.istack.internal.NotNull;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.io.*;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Stack;
 
 /**
@@ -22,7 +24,7 @@ import java.util.Stack;
  * |---modifyDate:
  * |---modifyAuthor:
  */
-public class XmlAdaptor {
+public class XmlAdaptor implements InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Value("${jmock.packet.response.name.prefix}")
@@ -31,7 +33,7 @@ public class XmlAdaptor {
     @Value("${jmock.packet.basePath}")
     private String basePath;
 
-    public Document parse(@NotNull String oridata) {
+    public Document parse( String oridata) {
         try {
             int start = oridata.indexOf("<?xml");
             if (start < 0) {
@@ -47,11 +49,7 @@ public class XmlAdaptor {
         }
     }
 
-    public String getRespPath(@NotNull Document document) {
-
-        if (null == this.prefixRule) {
-            this.initRule();
-        }
+    public String getRespPath( Document document) {
 
         StringBuilder sb = new StringBuilder(this.basePath);
         try {
@@ -89,10 +87,9 @@ public class XmlAdaptor {
         return sb.toString();
     }
 
-    private synchronized void initRule() {
-        if (null != this.prefixRule) {
-            return;
-        }
+    @Override
+    public void afterPropertiesSet() {
+
         Stack<PrefixRule> innerStack = new Stack<>();
         String[] temp = this.prefix.split("&");
         PrefixRule[] init = new PrefixRule[temp.length];
@@ -127,9 +124,11 @@ public class XmlAdaptor {
             }
 
             init[i] = root;
+            logger.debug("=====> PrefixRule[{}] =>{}",i,root);
         }
 
         this.prefixRule = init;
+
     }
 
     private void printElement(Element element) {
@@ -167,7 +166,7 @@ public class XmlAdaptor {
         xmlAdaptor.printElement(rootElement);
 
         System.out.println("===========");
-        String ss = rootElement.element("body").element("data2").element("field").getText();
+        String ss = ((Element)rootElement.element("body").elements("data").get(1)).element("field").getText();
         System.out.println(ss);
     }
 }
